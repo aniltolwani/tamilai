@@ -468,8 +468,8 @@ function firstWeekday(year: number, month: number) {
 function MonthGrid({ year, month, pins }: { year: number; month: number; pins: typeof FESTIVAL_PINS_2025 }) {
   const total = daysInMonth(year, month);
   const start = firstWeekday(year, month);
-  const rows: JSX.Element[] = [];
-  const cells: JSX.Element[] = [];
+  const rows: React.ReactElement[] = [];
+  const cells: React.ReactElement[] = [];
 
   const labels = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
