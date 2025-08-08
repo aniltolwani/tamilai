@@ -10,6 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ExternalLink, ShoppingBag, MapPin, Calendar, PlayCircle, BookOpenText, ScrollText, Shirt, ListChecks, Search, ChevronRight, ChevronLeft, Sparkles, Bug, Clock } from "lucide-react";
 
+// Safe external link attributes
+const A_EXT = { target: "_blank", rel: "noopener noreferrer" } as const;
+
 /**
  * Tamil Brahmin Almanac & Festival Helper — Bahrain (Deployable Next.js app)
  * - No live Panchanga API (snapshot locked to 2025-08-08 17:18 Asia/Bahrain).
@@ -60,7 +63,26 @@ asyāṁ śubhatithau (śubhe muhūrte) śrī (gaṇeśa/varalakṣmī/durgā/la
 `;
 
 // ---- Festival data (2025 dates pinned; Bahrain generally follows India dates; check muhurta locally) ----
-const FESTIVALS = [
+type LinkItem = { label: string; href: string };
+type VideoItem = { label: string; href: string };
+type MantraItem = { title: string; link?: string };
+type DosDonts = { dos: string[]; donts: string[] };
+export interface Festival {
+  id: string;
+  name: string;
+  when: string;
+  dateLinks?: LinkItem[];
+  neivedhyam?: string[];
+  sankalpam?: string;
+  dosDonts?: DosDonts;
+  vidhanam?: string[];
+  mantras?: MantraItem[];
+  dress?: string[];
+  shop?: LinkItem[];
+  videos?: VideoItem[];
+}
+
+const FESTIVALS: Festival[] = [
   {
     id: "ganesha",
     name: "Vinayaka Chaturthi (Ganesh Chaturthi)",
@@ -280,7 +302,7 @@ const Accent = ({ children }: { children: React.ReactNode }) => (
   <span className="bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 bg-clip-text text-transparent font-semibold">{children}</span>
 );
 
-function FestivalCard({ f }: { f: any }) {
+function FestivalCard({ f }: { f: Festival }) {
   return (
     <Card className="rounded-3xl shadow-lg border border-amber-100/70 overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-amber-50 via-rose-50 to-pink-50">
@@ -298,8 +320,8 @@ function FestivalCard({ f }: { f: any }) {
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-2">
-                {f.dateLinks?.map((d: any) => (
-                  <a key={d.href} href={d.href} target="_blank" className="flex items-center gap-2 text-blue-600 underline">
+                {f.dateLinks?.map((d) => (
+                  <a key={d.href} href={d.href} {...A_EXT} className="flex items-center gap-2 text-blue-600 underline">
                     <ExternalLink className="w-4 h-4"/> {d.label}
                   </a>
                 ))}
@@ -338,11 +360,11 @@ function FestivalCard({ f }: { f: any }) {
               </AccordionTrigger>
               <AccordionContent>
                 <ul className="list-disc pl-5 space-y-1 text-sm">
-                  {f.mantras.map((m: any, i: number) => (
+                  {f.mantras.map((m: MantraItem, i: number) => (
                     <li key={i}>
                       <span className="font-medium">{m.title}</span>{" "}
                       {m.link && (
-                        <a className="text-blue-600 underline inline-flex items-center gap-1" href={m.link} target="_blank">
+                        <a className="text-blue-600 underline inline-flex items-center gap-1" href={m.link} {...A_EXT}>
                           (full text) <ExternalLink className="w-3 h-3"/>
                         </a>
                       )}
@@ -369,12 +391,12 @@ function FestivalCard({ f }: { f: any }) {
                   <div className="text-sm mt-2">
                     <div className="font-medium mb-1 flex items-center gap-2"><ShoppingBag className="w-4 h-4"/>Buy in Bahrain (online)</div>
                     <ul className="list-disc pl-5 space-y-1">
-                      {f.shop?.map((s: any, i: number) => (
-                        <li key={i}><a href={s.href} target="_blank" className="text-blue-600 underline inline-flex items-center gap-1">{s.label} <ExternalLink className="w-3 h-3"/></a></li>
+                      {f.shop?.map((s: LinkItem, i: number) => (
+                        <li key={i}><a href={s.href} {...A_EXT} className="text-blue-600 underline inline-flex items-center gap-1">{s.label} <ExternalLink className="w-3 h-3"/></a></li>
                       ))}
                       <li>
                         <span className="font-medium">In‑person:</span> Explore shops around{" "}
-                        <a href={TEMPLE_INFO} target="_blank" className="text-blue-600 underline inline-flex items-center gap-1">Shri Krishna Temple, Manama Souq<ExternalLink className="w-3 h-3"/></a>
+                        <a href={TEMPLE_INFO} {...A_EXT} className="text-blue-600 underline inline-flex items-center gap-1">Shri Krishna Temple, Manama Souq<ExternalLink className="w-3 h-3"/></a>
                         — Little India often has idols, flowers, and puja items.
                       </li>
                     </ul>
@@ -390,8 +412,8 @@ function FestivalCard({ f }: { f: any }) {
                 <div className="flex items-center gap-2"><PlayCircle className="w-4 h-4"/>Videos (how‑to)</div>
               </AccordionTrigger>
               <AccordionContent>
-                {f.videos.map((v: any, i: number) => (
-                  <a key={i} href={v.href} target="_blank" className="text-blue-600 underline inline-flex items-center gap-1 text-sm"><ExternalLink className="w-3 h-3"/> {v.label}</a>
+                {f.videos.map((v: VideoItem, i: number) => (
+                  <a key={i} href={v.href} {...A_EXT} className="text-blue-600 underline inline-flex items-center gap-1 text-sm"><ExternalLink className="w-3 h-3"/> {v.label}</a>
                 ))}
               </AccordionContent>
             </AccordionItem>
@@ -639,7 +661,7 @@ For removal of accumulated sins and for the pleasure of Sri Parameshwara, I perf
     sankalpamPrefix: `श्रीः | श्री गोविन्द गोविन्द गोविन्द |
 मम उपात्त समस्त-दुरित-क्षय-द्वार श्री-परमेश्वर प्रीत्यर्थं`,
     filler: (o: any) =>
-      `श्री ${o.samvatsara} नाम संवत्सरे, दक्षिणायने, वर्षा-ऋतौ, ${o.masa}‑मासे, ${o.paksha}, ${o.tithi} तिथौ, ${o.weekday} (${o.time}), ${o.place} देशे, ${o.nakshatra} नक्षत्रे, ${o.yoga} योगे, ${o.karana} करणe, एवं गुणविशेषेण विशिष्टायाम्, श्री ${o.deity} प्रीत्यर्थं अहं ${o.gothram} गोत्रः (नाम: ${o.name || "—"}) व्रत/पूजां करिष्ये |`,
+      `श्री ${o.samvatsara} नाम संवत्सरे, दक्षिणायने, वर्षा-ऋतौ, ${o.masa}‑मासे, ${o.paksha}, ${o.tithi} तिथौ, ${o.weekday} (${o.time}), ${o.place} देशे, ${o.nakshatra} नक्षत्रे, ${o.yoga} योगे, ${o.karana} करणे, एवं गुणविशेषेण विशिष्टायाम्, श्री ${o.deity} प्रीत्यर्थं अहं ${o.gothram} गोत्रः (नाम: ${o.name || "—"}) व्रत/पूजां करिष्ये |`,
   },
   ta: {
     label: "தமிழ்",
@@ -821,11 +843,12 @@ function DevTestsCard() {
 }
 
 export default function Page() {
+  const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const [q, setQ] = useState("");
   const results = useMemo(() => {
-    const s = q.trim().toLowerCase();
+    const s = norm(q.trim());
     if (!s) return FESTIVALS.slice(0, 4);
-    return FESTIVALS.filter((f) => f.name.toLowerCase().includes(s) || f.id.includes(s));
+    return FESTIVALS.filter((f) => norm(f.name).includes(s) || norm(f.id).includes(s));
   }, [q]);
 
   const [nowStr, setNowStr] = useState("");
@@ -841,7 +864,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-rose-50 to-white max-w-2xl mx-auto pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-rose-50 to-white max-w-3xl mx-auto pb-28">
       {/* Top Hero */}
       <header className="sticky top-0 z-30 bg-white/85 backdrop-blur border-b">
         <div className="max-w-2xl mx-auto px-5 py-4 flex items-center justify-between gap-3">
@@ -855,7 +878,7 @@ export default function Page() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <a href={DP_PANCHANG_MONTH} target="_blank">
+            <a href={DP_PANCHANG_MONTH} {...A_EXT}>
               <Button size="sm" variant="secondary" className="flex items-center gap-1"><Calendar className="w-4 h-4"/> Today’s Panchangam</Button>
             </a>
           </div>
@@ -863,7 +886,7 @@ export default function Page() {
         <Separator />
         <div className="px-5 py-3 bg-white/85">
           <div className="relative">
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a festival (e.g., ganesha, navaratri)…" className="pl-9 h-11 rounded-xl"/>
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a festival (e.g., ganesha, navaratri)…" className="pl-9 h-12 rounded-xl"/>
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
           <div className="text-[11px] text-gray-500 mt-2 flex items-center gap-1"><Sparkles className="w-3 h-3"/> Bahrain‑aware links included.</div>
@@ -899,10 +922,10 @@ export default function Page() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div className="grid grid-cols-1 gap-2">
-                  <a href={DP_TAMIL_CAL_2025} target="_blank" className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> Tamil Festivals 2025 — Manama (DrikPanchang)</a>
-                  <a href={DP_TAMIL_DAY} target="_blank" className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> Daily Tamil Panchangam — Manama</a>
-                  <a href={MYPANCHANG_2025} target="_blank" className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> MyPanchang — Manama (2025 full year)</a>
-                  <a href={TEMPLE_INFO} target="_blank" className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> Shri Krishna Temple (Little India area) — directions</a>
+                  <a href={DP_TAMIL_CAL_2025} {...A_EXT} className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> Tamil Festivals 2025 — Manama (DrikPanchang)</a>
+                  <a href={DP_TAMIL_DAY} {...A_EXT} className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> Daily Tamil Panchangam — Manama</a>
+                  <a href={MYPANCHANG_2025} {...A_EXT} className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> MyPanchang — Manama (2025 full year)</a>
+                  <a href={TEMPLE_INFO} {...A_EXT} className="text-blue-600 underline inline-flex items-center gap-1"><ExternalLink className="w-4 h-4"/> Shri Krishna Temple (Little India area) — directions</a>
                 </div>
                 <div className="pt-2">
                   <div className="font-medium mb-1">Starter Shopping (ships to Bahrain)</div>
@@ -924,10 +947,10 @@ export default function Page() {
       </div>
 
       {/* Bottom bar */}
-      <footer className="fixed bottom-0 left-0 right-0 border-t bg-white/95 backdrop-blur p-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+      <footer className="fixed bottom-0 left-0 right-0 border-t bg-white/95 backdrop-blur py-3 px-4">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="text-[11px] text-gray-600">Made for Tamil Brahmin rituals • Follow family/āchārya guidance</div>
-          <a href={DP_TAMIL_CAL_2025} target="_blank"><Button size="sm" className="rounded-xl">Tamil Calendar 2025 (BH)</Button></a>
+          <a href={DP_TAMIL_CAL_2025} {...A_EXT}><Button size="sm" className="rounded-xl">Tamil Calendar 2025 (BH)</Button></a>
         </div>
       </footer>
     </div>
